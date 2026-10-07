@@ -18,7 +18,7 @@ and stores selected data into PostgreSQL.
 
    CREATE DATABASE trixi;
 
-2. Run `schema.sql`.
+2. Run `trixi_databaza.sql`.
 
 3. Configure PostgreSQL credentials in:
    `src/main/resources/META-INF/persistence.xml`
