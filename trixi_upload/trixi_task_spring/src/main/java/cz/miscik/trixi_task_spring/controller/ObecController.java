@@ -3,10 +3,7 @@ package cz.miscik.trixi_task_spring.controller;
 import cz.miscik.trixi_task_spring.Service.ObecService;
 import cz.miscik.trixi_task_spring.dto.CastObceDto;
 import cz.miscik.trixi_task_spring.dto.ObecDto;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
@@ -32,9 +29,9 @@ public class ObecController {
         this.obecService = obecService;
     }
 
-
+// --------------------------------------------------------------------------------------------------
 // GET operations --------------------------------------------------------------------------------------------------
-
+// --------------------------------------------------------------------------------------------------
     /**
      * Returns all villages.
      *
@@ -79,5 +76,38 @@ public class ObecController {
         return obecService.getCastObce(kod, castKod);
     }
 
+// --------------------------------------------------------------------------------------------------
+// POST operations --------------------------------------------------------------------------------------------------
+// --------------------------------------------------------------------------------------------------
+
+    /**
+     * Creates a new village using the provided data.
+     *
+     * @param dto data transfer object containing village information
+     * @return success message upon successful insertion
+     */
+    @PostMapping
+    public String postObec(@RequestBody ObecDto dto) { // @RequestBody => spring will automatically convert the JSON body of the request into an ObecDto object
+        obecService.postObec(dto);
+        return "Data Inserted Successfully";
+    }
+
+    /**
+     * Creates a new part of a village using the provided data.
+     *
+     * @param dto data transfer object containing village part information
+     * @return success message upon successful insertion
+     */
+    @PostMapping
+    public String postCastObce(@RequestBody CastObceDto dto) {
+        obecService.postCastObce(dto);
+        return "Data Inserted Successfully";
+    }
+
+// --------------------------------------------------------------------------------------------------
+// PUT operations --------------------------------------------------------------------------------------------------
+// --------------------------------------------------------------------------------------------------
+
+    
 
 }

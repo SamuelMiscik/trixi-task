@@ -86,7 +86,12 @@ public class ObecService {
      * @throws java.util.NoSuchElementException if the village does not exist
      */
     public List<CastObceDto> getCastiObce(Integer kod) {
-        Obec obec = obecRepository.findById(kod).orElseThrow(); // orElseThrow because it returns Optional => if there is nothing it returns null and we dont want that
+        Obec obec = obecRepository.findById(kod)
+                .orElseThrow(() -> new ResponseStatusException( // orElseThrow because it returns Optional => if there is nothing it returns null and we dont want that
+                        HttpStatus.NOT_FOUND,
+                        "Obec not found"
+                ));
+
         List<CastObce> castiObce = obec.getCastiObce();
 
         // InteliJ suggested this and it SO SMART -> I would have used obce = Entity object BUT thats not what we want so we map it to ObecDto object and return that instead of Entity object
@@ -108,7 +113,12 @@ public class ObecService {
      * @throws ResponseStatusException if the village part cannot be found
      */
     public CastObceDto getCastObce(Integer kod, Integer castKod) {
-        Obec obec = obecRepository.findById(kod).orElseThrow(); // orElseThrow because it returns Optional => if there is nothing it returns null and we dont want that
+        Obec obec = obecRepository.findById(kod)
+                .orElseThrow(() -> new ResponseStatusException( // orElseThrow because it returns Optional => if there is nothing it returns null and we dont want that
+                        HttpStatus.NOT_FOUND,
+                        "Obec not found"
+                ));
+
         List<CastObce> castiObce = obec.getCastiObce();
 
         for (CastObce castObce : castiObce) {
@@ -117,11 +127,48 @@ public class ObecService {
                 return castObceDto;
             }
         }
-        // If we dont find the right one we tell spring to return 404 NOT FOUND
+        // If we don't find the right one we tell spring to return 404 NOT FOUND
         throw new ResponseStatusException(
                 HttpStatus.NOT_FOUND,
                 "Cast obce not found"
         );
+    }
+
+    /**
+     * Creates a new village in the database using the provided DTO.
+     *
+     * @param dto DTO containing village data
+     */
+    public void postObec(ObecDto dto) {
+        Obec obec = new Obec();
+
+        obec.setKod(dto.kod());
+        obec.setName(dto.name());
+
+        obecRepository.save(obec);
+    }
+
+    /**
+     * Creates a new village part in the database using the provided DTO.
+     *
+     * @param dto DTO containing village part data
+     * @throws ResponseStatusException if the parent village cannot be found
+     */
+    public void postCastObce(CastObceDto dto) {
+        CastObce castObce = new CastObce();
+
+        castObce.setKod(dto.kod());
+        castObce.setName(dto.name());
+
+        Obec obec = obecRepository.findById(dto.obecKod())
+                .orElseThrow(() -> new ResponseStatusException(
+                        HttpStatus.NOT_FOUND,
+                        "Obec not found"
+                ));
+
+        castObce.setObec(obec);
+
+        castObceRepository.save(castObce);
     }
 
 }
