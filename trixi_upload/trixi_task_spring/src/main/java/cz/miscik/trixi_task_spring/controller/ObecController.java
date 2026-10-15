@@ -99,7 +99,7 @@ public class ObecController {
      * @param dto data transfer object containing village part information
      * @return success message upon successful insertion
      */
-    @PostMapping
+    @PostMapping("/{kod}/casti")
     public String postCastObce(@RequestBody CastObceDto dto) {
         obecService.postCastObce(dto);
         return "Data Inserted Successfully";
