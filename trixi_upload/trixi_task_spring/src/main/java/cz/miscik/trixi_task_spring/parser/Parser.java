@@ -14,14 +14,31 @@ import java.util.ArrayList;
 
 import static java.lang.Integer.parseInt;
 
+/**
+ * Parser class is responsible for parsing XML data from an InputStream.
+ * It uses StAX (Streaming API for XML) to read the XML data and extract relevant information
+ * about villages (Obec) and parts of villages (CastObce).
+ */
 public class Parser {
 
     private final XMLInputFactory xmlInputFactory;
 
+    /**
+     * Constructor for the Parser class.
+     * Initializes the XMLInputFactory instance used for creating XMLEventReader.
+     */
     public Parser() {
         this.xmlInputFactory = XMLInputFactory.newInstance();
     }
 
+    /**
+     * Parses the XML data from the given InputStream and returns a ParsedData object containing
+     * lists of villages (Obec) and parts of villages (CastObce).
+     *
+     * @param inputStream the InputStream containing the XML data to be parsed
+     * @return a ParsedData object containing lists of villages and parts of villages
+     * @throws XMLStreamException if an error occurs while parsing the XML data
+     */
     public ParsedData parse(InputStream inputStream) throws XMLStreamException {
 
         // Initialize variables to know where in XML we are

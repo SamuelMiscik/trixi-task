@@ -2,6 +2,11 @@ package cz.miscik.trixi_task_spring.entities;
 
 import jakarta.persistence.*;
 
+/**
+ * Entity class representing a part of a village (CastObce).
+ * This class is mapped to the "cast_obce" table in the database.
+ * It contains fields for the unique code, name, and a reference to the associated Obec entity.
+ */
 @Entity
 @Table(name = "cast_obce")
 public class CastObce {
@@ -18,6 +23,7 @@ public class CastObce {
     @JoinColumn(name = "kod_obce", nullable = false) // specifies the foreign key column in the cast_obce table
     private Obec obec;
 
+    // Getters and setters
     public Integer getKod() {
         return kod;
     }

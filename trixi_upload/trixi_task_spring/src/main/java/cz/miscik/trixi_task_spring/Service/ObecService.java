@@ -38,6 +38,10 @@ public class ObecService {
         this.castObceRepository = castObceRepository;
     }
 
+// --------------------------------------------------------------------------------------------------
+// GET operations --------------------------------------------------------------------------------------------------
+// --------------------------------------------------------------------------------------------------
+
     /**
      * Returns all villages stored in the database.
      *
@@ -134,6 +138,10 @@ public class ObecService {
         );
     }
 
+// --------------------------------------------------------------------------------------------------
+// POST operations --------------------------------------------------------------------------------------------------
+// --------------------------------------------------------------------------------------------------
+
     /**
      * Creates a new village in the database using the provided DTO.
      *
@@ -170,5 +178,111 @@ public class ObecService {
 
         castObceRepository.save(castObce);
     }
+
+// --------------------------------------------------------------------------------------------------
+// PUT operations --------------------------------------------------------------------------------------------------
+// --------------------------------------------------------------------------------------------------
+
+    /**
+     * Updates an existing village in the database using the provided DTO.
+     *
+     * @param kod village code
+     * @param dto DTO containing updated village data
+     * @throws ResponseStatusException if the village cannot be found
+     */
+    public void putObec(Integer kod, ObecDto dto) {
+        Obec obec = obecRepository.findById(kod)
+                .orElseThrow(() -> new ResponseStatusException(
+                        HttpStatus.NOT_FOUND,
+                        "Obec not found"
+                ));
+
+//        obec.setKod(dto.kod()); // Identifier shouldnt change
+        obec.setName(dto.name());
+
+        obecRepository.save(obec);
+    }
+
+    /**
+     * Updates an existing village part in the database using the provided DTO.
+     *
+     * @param kod village code
+     * @param castKod village-part code
+     * @param dto DTO containing updated village part data
+     * @throws ResponseStatusException if the village or village part cannot be found
+     */
+    public void putCastObce(Integer kod, Integer castKod, CastObceDto dto) {
+        Obec obec = obecRepository.findById(kod)
+                .orElseThrow(() -> new ResponseStatusException(
+                        HttpStatus.NOT_FOUND,
+                        "Obec not found"
+                ));
+
+        List<CastObce> castiObce = obec.getCastiObce();
+
+        for (CastObce castObce : castiObce) {
+            if(castObce.getKod().equals(castKod)) {
+//                castObce.setKod(dto.kod()); // Identifier shouldnt change
+                castObce.setName(dto.name());
+                castObceRepository.save(castObce);
+                return;
+            }
+        }
+
+        throw new ResponseStatusException(
+                HttpStatus.NOT_FOUND,
+                "Cast obce not found"
+        );
+    }
+
+// --------------------------------------------------------------------------------------------------
+// DELETE operations --------------------------------------------------------------------------------------------------
+// --------------------------------------------------------------------------------------------------
+
+    /**
+     * Deletes an existing village from the database.
+     *
+     * @param kod village code
+     * @throws ResponseStatusException if the village cannot be found
+     */
+    public void deleteObec(Integer kod) {
+        Obec obec = obecRepository.findById(kod)
+                .orElseThrow(() -> new ResponseStatusException(
+                        HttpStatus.NOT_FOUND,
+                        "Obec not found"
+                ));
+
+        obecRepository.delete(obec);
+    }
+
+    /**
+     * Deletes an existing village part from the database.
+     *
+     * @param kod village code
+     * @param castKod village-part code
+     * @throws ResponseStatusException if the village or village part cannot be found
+     */
+    public void deleteCastObce(Integer kod, Integer castKod) {
+        Obec obec = obecRepository.findById(kod)
+                .orElseThrow(() -> new ResponseStatusException(
+                        HttpStatus.NOT_FOUND,
+                        "Obec not found"
+                ));
+
+        List<CastObce> castiObce = obec.getCastiObce();
+
+        for (CastObce castObce : castiObce) {
+            if(castObce.getKod().equals(castKod)) {
+                castObceRepository.delete(castObce);
+                return;
+            }
+        }
+
+        throw new ResponseStatusException(
+                HttpStatus.NOT_FOUND,
+                "Cast obce not found"
+        );
+    }
+
 
 }

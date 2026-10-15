@@ -15,19 +15,42 @@ import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
 import java.util.zip.ZipInputStream;
 
+/**
+ * Main application class for the TrixiTaskSpring application.
+ *
+ * <p>This class is responsible for bootstrapping the Spring Boot application and executing
+ * the data import process after the application context is loaded.</p>
+ */
 @SpringBootApplication
 public class TrixiTaskSpringApplication implements CommandLineRunner { // Implement CommandLineRunner to run code after the application context is loaded -> spring boot thing
 
 	private final TrixiService trixiService;
 
+	/**
+	 * Constructor for TrixiTaskSpringApplication.
+	 *
+	 * @param trixiService service responsible for importing data into the database
+	 */
 	public TrixiTaskSpringApplication(TrixiService trixiService) {
 		this.trixiService = trixiService;
 	}
 
+	/**
+	 * Main method to start the Spring Boot application.
+	 *
+	 * @param args command-line arguments
+	 */
 	public static void main(String[] args) {
 		SpringApplication.run(TrixiTaskSpringApplication.class, args); // Start the Spring Boot application
 	}
 
+	/**
+	 * Method executed after the application context is loaded.
+	 * It downloads a zip file, unzips it, parses the XML data, and imports it into the database.
+	 *
+	 * @param args command-line arguments
+	 * @throws Exception if an error occurs during the download, unzip, parse, or import process
+	 */
 	@Override
 	public void run(String... args) throws Exception {
 

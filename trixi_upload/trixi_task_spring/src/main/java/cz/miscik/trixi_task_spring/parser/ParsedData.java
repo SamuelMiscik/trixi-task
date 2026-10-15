@@ -4,6 +4,10 @@ import cz.miscik.trixi_task_spring.entities.CastObce;
 
 import java.util.ArrayList;
 
+/**
+ * ParsedData class holds the parsed data from the CSV files.
+ * It contains two lists: one for villages (Obec) and another for parts of villages (CastObce).
+ */
 public class ParsedData {
     private final ArrayList<Obec> villages;
     private final ArrayList<CastObce> partsOfVillages;

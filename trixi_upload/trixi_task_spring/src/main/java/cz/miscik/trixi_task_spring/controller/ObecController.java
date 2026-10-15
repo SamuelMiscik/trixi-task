@@ -32,6 +32,7 @@ public class ObecController {
 // --------------------------------------------------------------------------------------------------
 // GET operations --------------------------------------------------------------------------------------------------
 // --------------------------------------------------------------------------------------------------
+
     /**
      * Returns all villages.
      *
@@ -108,6 +109,60 @@ public class ObecController {
 // PUT operations --------------------------------------------------------------------------------------------------
 // --------------------------------------------------------------------------------------------------
 
-    
+    /**
+     * Updates an existing village identified by its code using the provided data.
+     *
+     * @param kod village code
+     * @param dto data transfer object containing updated village information
+     * @return success message upon successful update
+     */
+    @PutMapping("/{kod}")
+    public String putObec(@PathVariable("kod") Integer kod, @RequestBody ObecDto dto) {
+        obecService.putObec(kod, dto);
+        return "Data Updated Successfully";
+    }
+
+    /**
+     * Updates an existing part of a village identified by the village code and part code using the provided data.
+     *
+     * @param kod village code
+     * @param castKod part code
+     * @param dto data transfer object containing updated village part information
+     * @return success message upon successful update
+     */
+    @PutMapping("/{kod}/casti/{castKod}")
+    public String putCastObce(@PathVariable("kod") Integer kod, @PathVariable("castKod") Integer castKod, @RequestBody CastObceDto dto) {
+        obecService.putCastObce(kod, castKod, dto);
+        return "Data Updated Successfully";
+    }
+
+// --------------------------------------------------------------------------------------------------
+// DELETE operations --------------------------------------------------------------------------------------------------
+// --------------------------------------------------------------------------------------------------
+
+    /**
+     * Deletes an existing village identified by its code.
+     *
+     * @param kod village code
+     * @return success message upon successful deletion
+     */
+    @DeleteMapping("/{kod}")
+    public String deleteObec(@PathVariable("kod") Integer kod) {
+        obecService.deleteObec(kod);
+        return "Data Deleted Successfully";
+    }
+
+    /**
+     * Deletes an existing part of a village identified by the village code and part code.
+     *
+     * @param kod village code
+     * @param castKod part code
+     * @return success message upon successful deletion
+     */
+    @DeleteMapping("/{kod}/casti/{castKod}")
+    public String deleteCastObce(@PathVariable("kod") Integer kod, @PathVariable("castKod") Integer castKod) {
+        obecService.deleteCastObce(kod, castKod);
+        return "Data Deleted Successfully";
+    }
 
 }

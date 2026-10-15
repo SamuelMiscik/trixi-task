@@ -4,6 +4,10 @@ import jakarta.persistence.*;
 import java.util.ArrayList;
 import java.util.List;
 
+/**
+ * Entity class representing an Obec (village) in the database.
+ * This class is mapped to the "obec" table in the database.
+ */
 @Entity
 @Table(name = "obec")
 public class Obec {
@@ -19,7 +23,7 @@ public class Obec {
     @OneToMany(mappedBy = "obec")
     private List<CastObce> castiObce = new ArrayList<>();
 
-    //getters and setters
+    // Getters and setters
     public Integer getKod() {
         return kod;
     }
