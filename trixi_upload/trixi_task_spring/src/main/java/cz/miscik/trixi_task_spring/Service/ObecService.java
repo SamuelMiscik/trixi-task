@@ -6,13 +6,14 @@ import cz.miscik.trixi_task_spring.entities.CastObce;
 import cz.miscik.trixi_task_spring.entities.Obec;
 import cz.miscik.trixi_task_spring.repository.CastObceRepository;
 import cz.miscik.trixi_task_spring.repository.ObecRepository;
-import jakarta.transaction.Transactional;
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.CachePut;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.web.server.ResponseStatusException;
 
 import java.util.List;
-import java.util.Optional;
 
 
 /**
@@ -47,10 +48,10 @@ public class ObecService {
      *
      * @return list of villages represented as DTOs
      */
+    @CacheEvict(value = "allObce", allEntries = true) // evict because calculating all villages will take too long everytime its called
     public List<ObecDto> getAllObce() {
         List<Obec> obce = obecRepository.findAll();
 
-        // InteliJ suggested this and it SO SMART -> I would have used obce = Entity object BUT thats not what we want so we map it to ObecDto object and return that instead of Entity object
         return obce.stream()
                 .map(obec -> new ObecDto( // for every obec make a new ObecDto
                         obec.getKod(), //add kod and name to the new ObecDto object
@@ -69,6 +70,7 @@ public class ObecService {
      * @param kod village code
      * @return village represented as a DTO, or {@code null} if it does not exist
      */
+    @Cacheable(value = "obce", key = "#kod")
     public ObecDto getObec(Integer kod) {
         Obec obec = obecRepository.findById(kod).orElse(null);
 
@@ -89,6 +91,7 @@ public class ObecService {
      * @return list of village parts represented as DTOs
      * @throws java.util.NoSuchElementException if the village does not exist
      */
+    @CacheEvict(value = "allCastiObce", allEntries = true) // allentries=true ==> evict all entries in the cache because we are changing the data
     public List<CastObceDto> getCastiObce(Integer kod) {
         Obec obec = obecRepository.findById(kod)
                 .orElseThrow(() -> new ResponseStatusException( // orElseThrow because it returns Optional => if there is nothing it returns null and we dont want that
@@ -116,6 +119,7 @@ public class ObecService {
      * @return village part represented as a DTO
      * @throws ResponseStatusException if the village part cannot be found
      */
+    @Cacheable(value = "castiObce", key = "#kod + ':' + #castKod")
     public CastObceDto getCastObce(Integer kod, Integer castKod) {
         Obec obec = obecRepository.findById(kod)
                 .orElseThrow(() -> new ResponseStatusException( // orElseThrow because it returns Optional => if there is nothing it returns null and we dont want that
@@ -147,6 +151,7 @@ public class ObecService {
      *
      * @param dto DTO containing village data
      */
+    @CacheEvict(value = "allObce", allEntries = true)
     public void postObec(ObecDto dto) {
         Obec obec = new Obec();
 
@@ -162,6 +167,7 @@ public class ObecService {
      * @param dto DTO containing village part data
      * @throws ResponseStatusException if the parent village cannot be found
      */
+    @CacheEvict(value = "allCastiObce", allEntries = true)
     public void postCastObce(CastObceDto dto) {
         CastObce castObce = new CastObce();
 
@@ -190,6 +196,7 @@ public class ObecService {
      * @param dto DTO containing updated village data
      * @throws ResponseStatusException if the village cannot be found
      */
+    @CachePut(value = "obce", key = "#kod")
     public void putObec(Integer kod, ObecDto dto) {
         Obec obec = obecRepository.findById(kod)
                 .orElseThrow(() -> new ResponseStatusException(
@@ -211,6 +218,7 @@ public class ObecService {
      * @param dto DTO containing updated village part data
      * @throws ResponseStatusException if the village or village part cannot be found
      */
+    @CachePut(value = "castiObce", key = "#kod")
     public void putCastObce(Integer kod, Integer castKod, CastObceDto dto) {
         Obec obec = obecRepository.findById(kod)
                 .orElseThrow(() -> new ResponseStatusException(
@@ -245,6 +253,7 @@ public class ObecService {
      * @param kod village code
      * @throws ResponseStatusException if the village cannot be found
      */
+    @CacheEvict(value = "allObce", allEntries = true)
     public void deleteObec(Integer kod) {
         Obec obec = obecRepository.findById(kod)
                 .orElseThrow(() -> new ResponseStatusException(
@@ -262,6 +271,7 @@ public class ObecService {
      * @param castKod village-part code
      * @throws ResponseStatusException if the village or village part cannot be found
      */
+    @CacheEvict(value = "allCastiObce", allEntries = true)
     public void deleteCastObce(Integer kod, Integer castKod) {
         Obec obec = obecRepository.findById(kod)
                 .orElseThrow(() -> new ResponseStatusException(

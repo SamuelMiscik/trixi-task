@@ -6,6 +6,7 @@ import cz.miscik.trixi_task_spring.parser.Parser;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
+import org.springframework.cache.annotation.EnableCaching;
 
 import java.io.FileInputStream;
 import java.io.InputStream;
@@ -22,6 +23,7 @@ import java.util.zip.ZipInputStream;
  * the data import process after the application context is loaded.</p>
  */
 @SpringBootApplication
+@EnableCaching
 public class TrixiTaskSpringApplication implements CommandLineRunner { // Implement CommandLineRunner to run code after the application context is loaded -> spring boot thing
 
 	private final TrixiService trixiService;
