@@ -9,6 +9,7 @@ import cz.miscik.trixi_task_spring.repository.ObecRepository;
 import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.CachePut;
 import org.springframework.cache.annotation.Cacheable;
+import org.springframework.cache.annotation.Caching;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.web.server.ResponseStatusException;
@@ -48,8 +49,9 @@ public class ObecService {
      *
      * @return list of villages represented as DTOs
      */
-    @CacheEvict(value = "allObce", allEntries = true) // evict because calculating all villages will take too long everytime its called
+    @Cacheable(value = "allObce") // Cacheable because until something changes with the obce, it stays the same !any change of data = immediate evict of this cached data because its not accurate anymore!
     public List<ObecDto> getAllObce() {
+        System.out.println("Getting all obce from database"); // This is just to show that the cache works, because if it works, this line will only be printed once and then the cache will be used for the next requests
         List<Obec> obce = obecRepository.findAll();
 
         return obce.stream()
@@ -72,6 +74,7 @@ public class ObecService {
      */
     @Cacheable(value = "obce", key = "#kod")
     public ObecDto getObec(Integer kod) {
+        System.out.println("Getting obec from database");
         Obec obec = obecRepository.findById(kod).orElse(null);
 
         if (obec == null) {
@@ -91,8 +94,9 @@ public class ObecService {
      * @return list of village parts represented as DTOs
      * @throws java.util.NoSuchElementException if the village does not exist
      */
-    @CacheEvict(value = "allCastiObce", allEntries = true) // allentries=true ==> evict all entries in the cache because we are changing the data
+    @Cacheable(value = "allCastiObce") //!any change of data = immediate evict of this cached data because its not accurate anymore!
     public List<CastObceDto> getCastiObce(Integer kod) {
+        System.out.println("Getting all casti from database");
         Obec obec = obecRepository.findById(kod)
                 .orElseThrow(() -> new ResponseStatusException( // orElseThrow because it returns Optional => if there is nothing it returns null and we dont want that
                         HttpStatus.NOT_FOUND,
@@ -121,6 +125,7 @@ public class ObecService {
      */
     @Cacheable(value = "castiObce", key = "#kod + ':' + #castKod")
     public CastObceDto getCastObce(Integer kod, Integer castKod) {
+        System.out.println("Getting cast from database");
         Obec obec = obecRepository.findById(kod)
                 .orElseThrow(() -> new ResponseStatusException( // orElseThrow because it returns Optional => if there is nothing it returns null and we dont want that
                         HttpStatus.NOT_FOUND,
@@ -151,8 +156,12 @@ public class ObecService {
      *
      * @param dto DTO containing village data
      */
-    @CacheEvict(value = "allObce", allEntries = true)
+    @Caching(evict = {
+            @CacheEvict(value = "allObce", allEntries = true), // Evicts the cache for all villages when a new village is created because the cache is not accurate anymore
+            @CacheEvict(value = "obce", key = "#dto.kod()") // THIS is just because when you call THIS exact obec with this exact CODE it returns null and that might remain in cache so we wanna get rid of that possibility
+    })
     public void postObec(ObecDto dto) {
+        System.out.println("Posting new obec to database + evicting cache for allObce");
         Obec obec = new Obec();
 
         obec.setKod(dto.kod());
@@ -167,8 +176,12 @@ public class ObecService {
      * @param dto DTO containing village part data
      * @throws ResponseStatusException if the parent village cannot be found
      */
-    @CacheEvict(value = "allCastiObce", allEntries = true)
+    @Caching(evict = {
+            @CacheEvict(value = "allCastiObce", key = "#dto.obecKod()"),
+            @CacheEvict(value = "castiObce", key = "#dto.obecKod() + ':' + #dto.kod()")
+    })
     public void postCastObce(CastObceDto dto) {
+        System.out.println("Posting new castObce to database + evicting cache for allCastiObce");
         CastObce castObce = new CastObce();
 
         castObce.setKod(dto.kod());
@@ -196,8 +209,16 @@ public class ObecService {
      * @param dto DTO containing updated village data
      * @throws ResponseStatusException if the village cannot be found
      */
-    @CachePut(value = "obce", key = "#kod")
-    public void putObec(Integer kod, ObecDto dto) {
+    @Caching(
+            put = {
+                    @CachePut(value = "obce", key = "#kod") // Changes the cache for the specific village when it is updated
+            },
+            evict = {
+                    @CacheEvict(value = "allObce", allEntries = true) // Evicts the cache for all villages when a specific village is updated because the cache is not accurate anymore
+            }
+    )
+    public ObecDto putObec(Integer kod, ObecDto dto) {
+        System.out.println("Putting obec to database + changing cache for specific obec + evicting cache for allObce");
         Obec obec = obecRepository.findById(kod)
                 .orElseThrow(() -> new ResponseStatusException(
                         HttpStatus.NOT_FOUND,
@@ -208,6 +229,8 @@ public class ObecService {
         obec.setName(dto.name());
 
         obecRepository.save(obec);
+
+        return new ObecDto(obec.getKod(), obec.getName()); //This is just so the CachePut works, otherwise method doesnt need it, but CachePut works here better then CacheEvict
     }
 
     /**
@@ -218,8 +241,16 @@ public class ObecService {
      * @param dto DTO containing updated village part data
      * @throws ResponseStatusException if the village or village part cannot be found
      */
-    @CachePut(value = "castiObce", key = "#kod")
-    public void putCastObce(Integer kod, Integer castKod, CastObceDto dto) {
+    @Caching(
+            put = {
+                    @CachePut(value = "castiObce", key = "#kod + ':' + #castKod") // Changes the cache for the specific village part when it is updated
+            },
+            evict = {
+                    @CacheEvict(value = "allCastiObce", key = "#kod") // Evicts only the cache for all village parts of the specific village when a specific village part is updated because the cache is not accurate anymore
+            }
+    )
+    public CastObceDto putCastObce(Integer kod, Integer castKod, CastObceDto dto) {
+        System.out.println("Putting castObce to database + changing cache for specific castObce + evicting cache for allCastiObce");
         Obec obec = obecRepository.findById(kod)
                 .orElseThrow(() -> new ResponseStatusException(
                         HttpStatus.NOT_FOUND,
@@ -233,7 +264,7 @@ public class ObecService {
 //                castObce.setKod(dto.kod()); // Identifier shouldnt change
                 castObce.setName(dto.name());
                 castObceRepository.save(castObce);
-                return;
+                return new CastObceDto(castObce.getKod(), castObce.getName(), castObce.getObec().getKod()); //This is just so the CachePut works, otherwise method doesnt need it, but CachePut works here better then CacheEvict
             }
         }
 
@@ -253,8 +284,14 @@ public class ObecService {
      * @param kod village code
      * @throws ResponseStatusException if the village cannot be found
      */
-    @CacheEvict(value = "allObce", allEntries = true)
+    @Caching(
+            evict = {
+                    @CacheEvict(value = "obce", key = "#kod"), // Evicts the cache for the specific village when it is deleted
+                    @CacheEvict(value = "allObce", allEntries = true) // Evicts the cache for all villages when a specific village is deleted because the cache is not accurate anymore
+            }
+    )
     public void deleteObec(Integer kod) {
+        System.out.println("Deleting obec from database + evicting cache for specific obec + evicting cache for allObce");
         Obec obec = obecRepository.findById(kod)
                 .orElseThrow(() -> new ResponseStatusException(
                         HttpStatus.NOT_FOUND,
@@ -271,8 +308,14 @@ public class ObecService {
      * @param castKod village-part code
      * @throws ResponseStatusException if the village or village part cannot be found
      */
-    @CacheEvict(value = "allCastiObce", allEntries = true)
+    @Caching(
+            evict = {
+                    @CacheEvict(value = "castiObce", key = "#kod + ':' + #castKod"), // Evicts the cache for the specific village part when it is deleted
+                    @CacheEvict(value = "allCastiObce", key = "#kod") // Evicts only the cache for all village parts of the specific village when a specific village part is deleted because the cache is not accurate anymore
+            }
+    )
     public void deleteCastObce(Integer kod, Integer castKod) {
+        System.out.println("Deleting castObce from database + evicting cache for specific castObce + evicting cache for allCastiObce");
         Obec obec = obecRepository.findById(kod)
                 .orElseThrow(() -> new ResponseStatusException(
                         HttpStatus.NOT_FOUND,

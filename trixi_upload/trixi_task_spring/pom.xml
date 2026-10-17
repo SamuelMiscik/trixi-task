@@ -65,6 +65,12 @@
 			<artifactId>hazelcast</artifactId>
 		</dependency>
 
+		<!-- Classpath for spring integration of hazelcast -->
+		<dependency>
+			<groupId>com.hazelcast</groupId>
+			<artifactId>hazelcast-spring</artifactId>
+		</dependency>
+
 
 	</dependencies>
 

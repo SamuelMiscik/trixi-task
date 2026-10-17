@@ -118,7 +118,7 @@ public class ObecController {
      */
     @PutMapping("/{kod}")
     public String putObec(@PathVariable("kod") Integer kod, @RequestBody ObecDto dto) {
-        obecService.putObec(kod, dto);
+        ObecDto obec = obecService.putObec(kod, dto); // this is not a typo, just a Service method that returns ObecDto because of CashePut
         return "Data Updated Successfully";
     }
 
@@ -132,7 +132,7 @@ public class ObecController {
      */
     @PutMapping("/{kod}/casti/{castKod}")
     public String putCastObce(@PathVariable("kod") Integer kod, @PathVariable("castKod") Integer castKod, @RequestBody CastObceDto dto) {
-        obecService.putCastObce(kod, castKod, dto);
+        CastObceDto castObce = obecService.putCastObce(kod, castKod, dto); // this is not a typo, just a Service method that returns ObecDto because of CashePut
         return "Data Updated Successfully";
     }
 
