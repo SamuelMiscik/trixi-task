@@ -70,6 +70,6 @@ public class TrixiTaskSpringApplication implements CommandLineRunner { // Implem
 		ParsedData data = parser.parse(zipInputStream);
 
 		// Import the parsed data into the database using the TrixiService
-		trixiService.importData(data.getVillages(), data.getPartsOfVillages());
+		trixiService.importData(data.obce(), data.castiObce());
 	}
 }

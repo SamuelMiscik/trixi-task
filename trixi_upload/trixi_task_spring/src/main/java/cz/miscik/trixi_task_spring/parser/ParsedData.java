@@ -3,26 +3,14 @@ import cz.miscik.trixi_task_spring.entities.Obec;
 import cz.miscik.trixi_task_spring.entities.CastObce;
 
 import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
 
 /**
- * ParsedData class holds the parsed data from the CSV files.
- * It contains two lists: one for villages (Obec) and another for parts of villages (CastObce).
+ * ParsedData record class holds the parsed data from the XML file.
+ * It contains two lists: one for villages (obce) and another for parts of villages (castiObce).
  */
-public class ParsedData {
-    private final ArrayList<Obec> villages;
-    private final ArrayList<CastObce> partsOfVillages;
-
-    public ParsedData(ArrayList<Obec> villages,
-                      ArrayList<CastObce> partsOfVillages) {
-        this.villages = villages;
-        this.partsOfVillages = partsOfVillages;
-    }
-
-    public ArrayList<Obec> getVillages() {
-        return villages;
-    }
-
-    public ArrayList<CastObce> getPartsOfVillages() {
-        return partsOfVillages;
-    }
-}
+public record ParsedData(
+        Map<Integer, Obec> obce,
+        List<CastObce> castiObce
+) {}

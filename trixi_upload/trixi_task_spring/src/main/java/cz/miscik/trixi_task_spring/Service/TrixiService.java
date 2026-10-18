@@ -8,6 +8,7 @@ import jakarta.transaction.Transactional;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.Map;
 
 /**
  * TrixiService class is responsible for handling the business logic related to importing data into the database.
@@ -40,9 +41,9 @@ public class TrixiService {
      * @param partsOfVillages   list of CastObce entities to be saved
      */
     @Transactional // Indicates that the method should be executed within a transaction.
-    public void importData(List<Obec> villages, List<CastObce> partsOfVillages) { // Method to import data into the database.
+    public void importData(Map<Integer, Obec> villages, List<CastObce> partsOfVillages) { // Method to import data into the database.
         // save obce
-        obecRepository.saveAll(villages); // replaces the loop with a simple function and saves every element in arraylist  into database
+        obecRepository.saveAll(villages.values()); // replaces the loop with a simple function and saves every element in arraylist  into database
         // save casti obce
         castObceRepository.saveAll(partsOfVillages);// replaces the loop with a simple function and saves every element in arraylist  into database
     }
