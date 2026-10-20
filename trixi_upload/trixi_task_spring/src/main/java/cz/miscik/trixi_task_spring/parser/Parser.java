@@ -19,7 +19,13 @@ import static javax.xml.stream.XMLStreamConstants.END_ELEMENT;
 
 import static java.lang.Integer.parseInt;
 
-
+/**
+ * Parses XML data into Obec and CastObce entities.
+ *
+ * <p>The parser uses StAX and {@link XMLStreamReader}, so the XML is processed
+ * sequentially without loading the whole document into memory.</p>
+ *
+ */
 public class Parser {
 
     private final XMLInputFactory xmlInputFactory;
@@ -29,10 +35,21 @@ public class Parser {
     private static final String OBEC_NAMESPACE = "urn:cz:isvs:ruian:schemas:ObecIntTypy:v1";
     private static final String CAST_OBCE_NAMESPACE = "urn:cz:isvs:ruian:schemas:CastObceIntTypy:v1";
 
+    /**
+     * Constructor: Creates a new parser with a default {@link XMLInputFactory}.
+     */
     public Parser() {
         this.xmlInputFactory = XMLInputFactory.newInstance();
     }
 
+    /**
+     * Parses the supplied XML stream and returns extracted villages
+     * and their parts.
+     *
+     * @param inputStream XML input stream to parse
+     * @return parsed Obec and CastObce data
+     * @throws XMLStreamException if the XML cannot be parsed or required data is missing
+     */
     public ParsedData parse(InputStream inputStream) throws XMLStreamException {
 
         // Initialize lists to hold parsed data
@@ -73,6 +90,16 @@ public class Parser {
         return new ParsedData(obce, castiObce);
     }
 
+    /**
+     * Parses a single Obec element.
+     *
+     * <p>The method expects the reader to be positioned on the opening
+     * {@code vf:Obec} element and consumes events until its closing element.</p>
+     *
+     * @param reader XML stream reader positioned at an Obec element
+     * @return parsed Obec entity
+     * @throws XMLStreamException if required values such as Kod or Nazev are missing
+     */
     private Obec partParse (XMLStreamReader reader) throws XMLStreamException {
         Integer kod = null;
         String name = null;
@@ -103,6 +130,17 @@ public class Parser {
         return obec;
     }
 
+    /**
+     * Parses a single CastObce element and links it to its parent Obec.
+     *
+     * <p>The parent village is identified by its code from the XML
+     * and looked up in the supplied map.</p>
+     *
+     * @param reader XML stream reader positioned at a CastObce element
+     * @param obce parsed Obec entities indexed by their code
+     * @return parsed CastObce entity linked to its parent Obec
+     * @throws XMLStreamException if required values are missing or the parent Obec cannot be found
+     */
     private CastObce partParse (XMLStreamReader reader, Map<Integer, Obec> obce) throws XMLStreamException {
         Integer kod = null;
         String name = null;

@@ -3,13 +3,16 @@ services:
     image: postgres:18
     container_name: trixi-postgres
 
+    # Initial database settings
     environment:
       POSTGRES_DB: trixi
       POSTGRES_USER: postgres
       POSTGRES_PASSWORD: trixi
 
+    # localhost:5433 -> container:5432
     ports:
       - "5433:5432"
 
+    # Run schema.sql when DB is initialized
     volumes:
       - ./schema.sql:/docker-entrypoint-initdb.d/schema.sql

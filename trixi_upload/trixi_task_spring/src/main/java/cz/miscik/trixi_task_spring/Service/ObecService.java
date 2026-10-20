@@ -75,11 +75,11 @@ public class ObecService {
     @Cacheable(value = "obce", key = "#kod")
     public ObecDto getObec(Integer kod) {
         System.out.println("Getting obec from database");
-        Obec obec = obecRepository.findById(kod).orElse(null);
-
-        if (obec == null) {
-            return null;
-        }
+        Obec obec = obecRepository.findById(kod)
+                .orElseThrow(() -> new ResponseStatusException(
+                        HttpStatus.NOT_FOUND, //  NOT_FOUND(404, HttpStatus.Series.CLIENT_ERROR, "Not Found"),
+                        "Obec with kod " + kod + " not found"
+                ));
 
         return new ObecDto(
                 obec.getKod(),

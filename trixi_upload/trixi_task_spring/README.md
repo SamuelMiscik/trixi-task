@@ -3,6 +3,9 @@
 Spring Boot application that parses data from `kopidlno.xml.zip`
 and stores selected data into a PostgreSQL database inside a Docker container.
 
+The application also exposes a REST API for working with municipalities
+and their parts.
+
 ## Technologies
 
 - Java 25
@@ -12,7 +15,10 @@ and stores selected data into a PostgreSQL database inside a Docker container.
 - PostgreSQL 18
 - Docker / Docker Compose
 - StAX XML parser
+- Hazelcast
+- Spring Cache
 - Maven
+- Postman for API testing
 
 ## Database
 
@@ -60,11 +66,56 @@ This starts the PostgreSQL container.
 
 The application will:
 
-1. open the ZIP archive
+1. download and open the ZIP archive
 2. parse the XML using StAX
 3. create Java entities
 4. save the data using Spring Data JPA
 5. store the records in PostgreSQL
+6. start the REST API on port `8080`
+
+## REST API
+
+The REST API is available under:
+
+```text
+/api/obce
+```
+
+Main endpoints include:
+
+```text
+GET    /api/obce
+GET    /api/obce/{kod}
+GET    /api/obce/{kod}/casti
+GET    /api/obce/{kod}/casti/{castKod}
+
+POST   /api/obce
+POST   /api/obce/{kod}/casti
+
+PUT    /api/obce/{kod}
+PUT    /api/obce/{kod}/casti/{castKod}
+
+DELETE /api/obce/{kod}
+DELETE /api/obce/{kod}/casti/{castKod}
+```
+
+The REST API was manually tested using Postman.
+
+## Caching
+
+Hazelcast is used as the cache provider through Spring Cache.
+
+The application uses separate caches for:
+
+- individual municipalities
+- all municipalities
+- individual municipality parts
+- all parts belonging to a municipality
+
+Cached entries use a maximum idle time of 300 seconds.
+
+Caching was manually tested by repeating API requests and verifying that
+cached requests do not execute unnecessary database queries.
 
 ## Stopping the database
 

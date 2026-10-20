@@ -8,7 +8,7 @@ import java.util.Map;
 
 /**
  * ParsedData record class holds the parsed data from the XML file.
- * It contains two lists: one for villages (obce) and another for parts of villages (castiObce).
+ * It contains one Map for villages (obce) and one List for parts of villages (castiObce).
  */
 public record ParsedData(
         Map<Integer, Obec> obce,
